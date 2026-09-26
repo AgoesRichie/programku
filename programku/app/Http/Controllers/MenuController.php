@@ -26,6 +26,14 @@ class MenuController extends Controller
 
     public function store(Request $request)
     {
+        // 1. WAJIB DI ATAS: Hapus titik dari harga dulu!
+        // Mengubah "25.000" menjadi "25000"
+        if ($request->has('harga')) {
+            $request->merge([
+                'harga' => str_replace('.', '', $request->harga)
+            ]);
+        }
+    
         // 1. Validasi input (kode_menu dihapus dari validasi karena dibuat otomatis)
         $request->validate([
             'nama_menu' => 'required',

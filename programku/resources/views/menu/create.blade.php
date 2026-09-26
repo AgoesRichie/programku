@@ -16,7 +16,9 @@
                     </div>
                 @endif
 
-                <form action="{{ route('menu.store') }}" method="POST">
+               
+                <form action="{{ route('menu.store') }}" method="POST" enctype="multipart/form-data">
+                    <!-- HARUS ADA enctype="multipart/form-data" -->
                     @csrf 
 
                     <!-- 1. Kode Menu (Auto-Generate, Readonly) -->
