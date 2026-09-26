@@ -31,6 +31,7 @@
                             <th>Nama Menu</th>
                             <th>Harga</th>
                             <th>Deskripsi</th>
+                            <th class="text-center" width="100">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,11 +55,23 @@
                                 <td class="text-muted small">
                                     {{ $menu->deskripsi ?? '-' }}
                                 </td>
+
+                                <!-- TAMBAHKAN KOLOM AKSI INI -->
+                                <td class="text-center">
+                                    <!-- Form khusus untuk metode DELETE -->
+                                    <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ $menu->nama_menu }}?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
                                 <!-- colspan diubah dari 6 menjadi 5 karena ada 1 kolom yang dihapus -->
-                                <td colspan="5" class="text-center text-muted py-4">
+                                <td colspan="6" class="text-center text-muted py-4">
                                     Belum ada data menu. Silakan tambah menu baru!
                                 </td>
                             </tr>

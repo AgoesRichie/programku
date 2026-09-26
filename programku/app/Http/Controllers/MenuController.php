@@ -135,4 +135,25 @@ class MenuController extends Controller
         
         return view('menu.index', compact('menus'));
     }
+
+    public function destroy($id)
+    {
+        // 1. Cari data menu berdasarkan ID
+        $menu = Menu::findOrFail($id);
+
+        // 2. Cek apakah menu ini memiliki foto
+        if ($menu->foto) {
+            // Hapus file foto dari dalam folder storage
+            $pathFoto = storage_path('app/public/' . $menu->foto);
+            if (file_exists($pathFoto)) {
+                unlink($pathFoto); // Perintah native PHP untuk menghapus file
+            }
+        }
+
+        // 3. Hapus data dari database SQLite
+        $menu->delete();
+
+        // 4. Kembali ke halaman daftar dengan pesan sukses
+        return redirect()->route('menu.index')->with('success', 'Data menu dan foto berhasil dihapus!');
+    }
 }
