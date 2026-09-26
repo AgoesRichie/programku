@@ -7,7 +7,16 @@
     <div class="col-md-8 col-lg-6">
         <div class="card shadow-sm border-0 rounded-3">
             <div class="card-body p-4">
-                <h3 class="text-center mb-4 text-primary">Tambah Menu Baru</h3>
+
+                    <!-- Tombol Kembali diletakkan di baris sendiri (di atas) -->
+                    <div class="mb-3 text-start">
+                        <a href="{{ route('menu.index') }}" class="btn btn-sm btn-outline-secondary fw-bold">
+                            &laquo; Kembali
+                        </a>
+                    </div>
+
+                    <!-- Judul Form diletakkan di bawahnya dan dibuat rata tengah kembali -->
+                    <h3 class="text-center mb-4 text-primary fw-bold">Tambah Menu Baru</h3>
 
                 @if (session('success'))
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -44,7 +53,7 @@
 
                     <!-- 4. Upload Foto Menu -->
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary">Foto Menu (Opsional)</label>
+                        <label class="form-label fw-bold text-secondary">Foto Menu</label>
                         <input type="file" name="foto" class="form-control form-control-lg @error('foto') is-invalid @enderror" accept="image/*">
                         @error('foto') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         <small class="text-muted">Gambar akan otomatis dikompres agar website tetap ringan.</small>
@@ -52,7 +61,7 @@
 
                     <!-- 5. Deskripsi -->
                     <div class="mb-4">
-                        <label class="form-label fw-bold text-secondary">Deskripsi (Opsional)</label>
+                        <label class="form-label fw-bold text-secondary">Deskripsi</label>
                         <textarea name="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="3" placeholder="Masukkan detail produk...">{{ old('deskripsi') }}</textarea>
                         @error('deskripsi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>

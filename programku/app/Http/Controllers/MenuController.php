@@ -37,8 +37,9 @@ class MenuController extends Controller
         // 1. Validasi input (kode_menu dihapus dari validasi karena dibuat otomatis)
         $request->validate([
             'nama_menu' => 'required',
-            'deskripsi' => 'nullable',
-            'harga'     => 'required|numeric' // <--- TAMBAHKAN INI
+            'deskripsi' => 'required|string|max:1000',
+            'harga'     => 'required|numeric',
+            'foto'      => 'required|image|mimes:jpeg,png,jpg,gif|max:4096', // Maksimal 4MB
         ]);
 
         // 2. Logika Auto-Generate Kode Menu (Prefix: MN-)
@@ -123,6 +124,15 @@ class MenuController extends Controller
         ]);
 
         // 4. Kembalikan ke form dengan pesan sukses
-        return redirect()->back()->with('success', 'Menu berhasil ditambahkan dengan kode: ' . $kodeBaru);
+        // KODE BARU DITAMPILKAN DI PESAN SUKSES
+        return redirect()->route('menu.index')->with('success', 'Menu berhasil ditambahkan dengan nama: ' . $request->nama_menu);
+    }
+
+    public function index()
+    {
+        // Ambil semua data menu dari yang terbaru (descending)
+        $menus = Menu::orderBy('nama_menu', 'asc')->get();
+        
+        return view('menu.index', compact('menus'));
     }
 }
