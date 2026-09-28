@@ -58,14 +58,24 @@
 
                                 <!-- TAMBAHKAN KOLOM AKSI INI -->
                                 <td class="text-center">
-                                    <!-- Form khusus untuk metode DELETE -->
-                                    <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ $menu->nama_menu }}?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger fw-bold">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    <!-- d-flex memuat tombol bersebelahan (Edit & Hapus) -->
+                                    <div class="d-flex justify-content-center gap-2">
+                                        
+                                        <!-- Tombol Edit -->
+                                        <a href="{{ route('menu.edit', $menu->id) }}" class="btn btn-sm btn-warning fw-bold text-dark">
+                                            Edit
+                                        </a>
+
+                                        <!-- Tombol Hapus (kode sebelumnya) -->
+                                        <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus menu {{ $menu->nama_menu }}?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger fw-bold">
+                                                Hapus
+                                            </button>
+                                        </form>
+
+                                    </div>
                                 </td>
                             </tr>
                         @empty

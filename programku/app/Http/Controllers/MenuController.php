@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MenuController extends Controller
 {
-    public function create()
+    public function create() // Masuk ke tambah menu
     {
         // Logika untuk menebak kode menu selanjutnya
         $menuTerakhir = Menu::orderBy('id', 'desc')->first();
@@ -24,7 +24,7 @@ class MenuController extends Controller
         return view('menu.create', compact('kodeBaru'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request) // Input data menu ke database
     {
         // 1. WAJIB DI ATAS: Hapus titik dari harga dulu!
         // Mengubah "25.000" menjadi "25000"
@@ -128,7 +128,7 @@ class MenuController extends Controller
         return redirect()->route('menu.index')->with('success', 'Menu berhasil ditambahkan dengan nama: ' . $request->nama_menu);
     }
 
-    public function index()
+    public function index() // Daftar menu
     {
         // Ambil semua data menu dari yang terbaru (descending)
         $menus = Menu::orderBy('nama_menu', 'asc')->get();
@@ -136,7 +136,7 @@ class MenuController extends Controller
         return view('menu.index', compact('menus'));
     }
 
-    public function destroy($id)
+    public function destroy($id) // Delete data menu
     {
         // 1. Cari data menu berdasarkan ID
         $menu = Menu::findOrFail($id);
@@ -156,4 +156,99 @@ class MenuController extends Controller
         // 4. Kembali ke halaman daftar dengan pesan sukses
         return redirect()->route('menu.index')->with('success', 'Data menu dan foto berhasil dihapus!');
     }
+
+    public function edit($id) // menampilkan menu edit
+    {
+        // Cari data berdasarkan ID
+        $menu = Menu::findOrFail($id);
+        
+        return view('menu.edit', compact('menu'));
+    }
+
+    public function update(Request $request, $id) // editing data menu database
+    {
+        $menu = Menu::findOrFail($id);
+
+        // 1. Bersihkan format harga dari titik
+        if ($request->has('harga')) {
+            $request->merge([
+                'harga' => str_replace('.', '', $request->harga)
+            ]);
+        }
+
+        // 2. Validasi input
+        $request->validate([
+            'nama_menu' => 'required',
+            'harga'     => 'required|numeric',
+            'foto'      => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
+            'deskripsi' => 'required|string|max:1000'
+        ]);
+
+        // 3. Logika Gambar (Jika ada gambar baru yang diunggah)
+        $lokasiFoto = $menu->foto; // Default pakai foto lama
+
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama JIKA ada
+            if ($menu->foto) {
+                $pathFotoLama = storage_path('app/public/' . $menu->foto);
+                if (file_exists($pathFotoLama)) {
+                    unlink($pathFotoLama);
+                }
+            }
+
+            // Proses Kompresi Foto Baru (Sama seperti saat Create)
+            $file = $request->file('foto');
+            $namaFile = time() . '_' . uniqid() . '.jpg';
+            $folderTujuan = storage_path('app/public/foto_menu');
+            
+            if (!file_exists($folderTujuan)) {
+                mkdir($folderTujuan, 0755, true);
+            }
+            $pathTujuan = $folderTujuan . '/' . $namaFile;
+
+            $infoGambar = getimagesize($file->getPathname());
+            $lebarAsli = $infoGambar[0];
+            $tinggiAsli = $infoGambar[1];
+            $tipeGambar = $infoGambar[2];
+
+            $lebarBaru = 800;
+            if ($lebarAsli > $lebarBaru) {
+                $tinggiBaru = ($tinggiAsli / $lebarAsli) * $lebarBaru;
+            } else {
+                $lebarBaru = $lebarAsli;
+                $tinggiBaru = $tinggiAsli;
+            }
+
+            $gambarBaru = imagecreatetruecolor($lebarBaru, $tinggiBaru);
+
+            if ($tipeGambar == IMAGETYPE_PNG) {
+                $bgPutih = imagecolorallocate($gambarBaru, 255, 255, 255);
+                imagefill($gambarBaru, 0, 0, $bgPutih);
+                $sumberGambar = imagecreatefrompng($file->getPathname());
+            } else {
+                $sumberGambar = imagecreatefromjpeg($file->getPathname());
+            }
+
+            imagecopyresampled($gambarBaru, $sumberGambar, 0, 0, 0, 0, $lebarBaru, $tinggiBaru, $lebarAsli, $tinggiAsli);
+            imagejpeg($gambarBaru, $pathTujuan, 60);
+
+            imagedestroy($sumberGambar);
+            imagedestroy($gambarBaru);
+
+            // Perbarui lokasi foto dengan foto baru
+            $lokasiFoto = 'foto_menu/' . $namaFile;
+        }
+
+        // 4. Update ke SQLite
+        $menu->update([
+            'nama_menu' => $request->nama_menu,
+            'harga'     => $request->harga,
+            'foto'      => $lokasiFoto,
+            'deskripsi' => $request->deskripsi,
+            // (Catatan: kode_menu tidak diubah)
+        ]);
+
+        return redirect()->route('menu.index')->with('success', 'Menu ' . $menu->nama_menu . ' berhasil diperbarui!');
+    }
+
 }

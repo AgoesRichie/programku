@@ -14,6 +14,11 @@ Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
 // Route untuk hapus daftar menu
 Route::delete('/menu/{id}', [MenuController::class, 'destroy'])->name('menu.destroy');
 
+//  Route untuk edit menu
+Route::get('/menu/{id}/edit', [MenuController::class, 'edit'])->name('menu.edit');
+Route::put('/menu/{id}', [MenuController::class, 'update'])->name('menu.update');
+
+
 Route::get('/', function () {
     return view('welcome');
 });
