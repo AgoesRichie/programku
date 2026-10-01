@@ -29,6 +29,7 @@
                             <th class="text-center" width="100">Foto</th>
                             <!-- Kolom Kode Menu DIHAPUS dari sini -->
                             <th>Nama Menu</th>
+                            <th>Jenis</th>
                             <th>Harga</th>
                             <th>Deskripsi</th>
                             <th class="text-center" width="100">Aksi</th>
@@ -48,6 +49,25 @@
                                 </td>
                                 <!-- Baris data Kode Menu DIHAPUS dari sini -->
                                 <td class="fw-bold">{{ $menu->nama_menu }}</td>
+                                <td>
+                                    @php
+                                        $badgeClass = match($menu->jenis_menu) {
+                                            'Makanan' => 'bg-success',
+                                            'Minuman' => 'bg-info',
+                                            'Camilan' => 'bg-warning text-dark',
+                                            default   => 'bg-secondary',
+                                        };
+                                        $emoji = match($menu->jenis_menu) {
+                                            'Makanan' => '🍽️',
+                                            'Minuman' => '🥤',
+                                            'Camilan' => '🍿',
+                                            default   => '📋',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">
+                                        {{ $emoji }} {{ $menu->jenis_menu }}
+                                    </span>
+                                </td>
                                 <!-- Menampilkan harga dengan format ribuan Rp xx.xxx -->
                                 <td class="text-success fw-bold">
                                     Rp {{ number_format($menu->harga, 0, ',', '.') }}
@@ -80,8 +100,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <!-- colspan diubah dari 6 menjadi 5 karena ada 1 kolom yang dihapus -->
-                                <td colspan="6" class="text-center text-muted py-4">
+                                <!-- colspan 7 sesuai jumlah kolom: No, Foto, Nama Menu, Jenis, Harga, Deskripsi, Aksi -->
+                                <td colspan="7" class="text-center text-muted py-4">
                                     Belum ada data menu. Silakan tambah menu baru!
                                 </td>
                             </tr>

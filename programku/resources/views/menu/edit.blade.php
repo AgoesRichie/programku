@@ -34,6 +34,18 @@
                         @error('nama_menu') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
+                    <!-- Jenis Menu -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Jenis Menu</label>
+                        <select name="jenis_menu" class="form-select form-select-lg @error('jenis_menu') is-invalid @enderror" required>
+                            <option value="" disabled>-- Pilih Jenis Menu --</option>
+                            <option value="Makanan" {{ old('jenis_menu', $menu->jenis_menu) == 'Makanan' ? 'selected' : '' }}>🍽️ Makanan</option>
+                            <option value="Minuman" {{ old('jenis_menu', $menu->jenis_menu) == 'Minuman' ? 'selected' : '' }}>🥤 Minuman</option>
+                            <option value="Camilan" {{ old('jenis_menu', $menu->jenis_menu) == 'Camilan' ? 'selected' : '' }}>🍿 Camilan</option>
+                        </select>
+                        @error('jenis_menu') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
                     <!-- Harga -->
                     <div class="mb-3">
                         <label class="form-label fw-bold text-secondary">Harga (Rp)</label>

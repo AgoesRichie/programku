@@ -44,7 +44,19 @@
                         @error('nama_menu') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
 
-                    <!-- 3. Harga (Dengan Script Pemisah Ribuan) -->
+                    <!-- 3. Jenis Menu -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Jenis Menu</label>
+                        <select name="jenis_menu" class="form-select form-select-lg @error('jenis_menu') is-invalid @enderror" required>
+                            <option value="" disabled {{ old('jenis_menu') ? '' : 'selected' }}>-- Pilih Jenis Menu --</option>
+                            <option value="Makanan" {{ old('jenis_menu') == 'Makanan' ? 'selected' : '' }}>🍽️ Makanan</option>
+                            <option value="Minuman" {{ old('jenis_menu') == 'Minuman' ? 'selected' : '' }}>🥤 Minuman</option>
+                            <option value="Camilan" {{ old('jenis_menu') == 'Camilan' ? 'selected' : '' }}>🍿 Camilan</option>
+                        </select>
+                        @error('jenis_menu') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <!-- 4. Harga (Dengan Script Pemisah Ribuan) -->
                     <div class="mb-3">
                         <label class="form-label fw-bold text-secondary">Harga (Rp)</label>
                         <input type="text" inputmode="numeric" id="harga" name="harga" class="form-control form-control-lg @error('harga') is-invalid @enderror" value="{{ old('harga') }}" placeholder="Contoh: 50.000" required>

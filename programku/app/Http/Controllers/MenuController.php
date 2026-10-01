@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class MenuController extends Controller
 {
@@ -36,10 +37,12 @@ class MenuController extends Controller
     
         // 1. Validasi input (kode_menu dihapus dari validasi karena dibuat otomatis)
         $request->validate([
-            'nama_menu' => 'required',
-            'deskripsi' => 'required|string|max:1000',
-            'harga'     => 'required|numeric',
-            'foto'      => 'required|image|mimes:jpeg,png,jpg,gif|max:4096', // Maksimal 4MB
+            'nama_menu'  => 'required',
+            'jenis_menu' => 'required|in:Makanan,Minuman,Camilan',
+            'deskripsi'  => 'required|string|max:1000',
+            'harga'      => 'required|numeric',
+            'foto'       => 'required|image|mimes:jpeg,png,jpg,gif|max:4096', // Maksimal 4MB
+            'jenis_menu' => 'required|in:Makanan,Minuman,Camilan'
         ]);
 
         // 2. Logika Auto-Generate Kode Menu (Prefix: MN-)
@@ -116,11 +119,13 @@ class MenuController extends Controller
 
         // 4. Simpan data ke database beserta kode otomatisnya
         Menu::create([
-            'kode_menu' => $kodeBaru,
-            'nama_menu' => $request->nama_menu,
-            'deskripsi' => $request->deskripsi,
-            'harga'     => $request->harga,
-            'foto'      => $lokasiFoto,
+            'kode_menu'  => $kodeBaru,
+            'nama_menu'  => $request->nama_menu,
+            'jenis_menu' => $request->jenis_menu,
+            'deskripsi'  => $request->deskripsi,
+            'harga'      => $request->harga,
+            'foto'       => $lokasiFoto,
+            'jenis_menu' => $request->jenis_menu
         ]);
 
         // 4. Kembalikan ke form dengan pesan sukses
@@ -136,25 +141,36 @@ class MenuController extends Controller
         return view('menu.index', compact('menus'));
     }
 
-    public function destroy($id) // Delete data menu
+    public function destroy($id)
     {
-        // 1. Cari data menu berdasarkan ID
-        $menu = Menu::findOrFail($id);
+        // Bungkus dengan Try-Catch dan DB Transaction
+        try {
+            DB::beginTransaction();
 
-        // 2. Cek apakah menu ini memiliki foto
-        if ($menu->foto) {
-            // Hapus file foto dari dalam folder storage
-            $pathFoto = storage_path('app/public/' . $menu->foto);
-            if (file_exists($pathFoto)) {
-                unlink($pathFoto); // Perintah native PHP untuk menghapus file
+            $menu = Menu::findOrFail($id);
+            
+            // Simpan nama file sebelum dihapus dari DB
+            $fotoYangAkanDihapus = $menu->foto; 
+
+            // 1. Hapus dari database dulu (jika ini gagal, ke bawahnya batal)
+            $menu->delete();
+
+            // 2. Jika DB berhasil, baru eksekusi hapus file fisik
+            if ($fotoYangAkanDihapus) {
+                $pathFoto = storage_path('app/public/' . $fotoYangAkanDihapus);
+                if (file_exists($pathFoto)) {
+                    unlink($pathFoto);
+                }
             }
+
+            DB::commit(); // Sahkan semua proses
+            return redirect()->route('menu.index')->with('success', 'Data menu dan gambar dihapus!');
+
+        } catch (\Exception $e) {
+            DB::rollBack(); // Batalkan semua jika ada error!
+            // Kembali dengan pesan error tanpa merusak aplikasi
+            return redirect()->back()->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
         }
-
-        // 3. Hapus data dari database SQLite
-        $menu->delete();
-
-        // 4. Kembali ke halaman daftar dengan pesan sukses
-        return redirect()->route('menu.index')->with('success', 'Data menu dan foto berhasil dihapus!');
     }
 
     public function edit($id) // menampilkan menu edit
@@ -178,10 +194,12 @@ class MenuController extends Controller
 
         // 2. Validasi input
         $request->validate([
-            'nama_menu' => 'required',
-            'harga'     => 'required|numeric',
-            'foto'      => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
-            'deskripsi' => 'required|string|max:1000'
+            'nama_menu'  => 'required',
+            'jenis_menu' => 'required|in:Makanan,Minuman,Camilan',
+            'harga'      => 'required|numeric',
+            'foto'       => 'nullable|image|mimes:jpeg,png,jpg|max:3072',
+            'deskripsi'  => 'required|string|max:1000',
+            'jenis_menu' => 'required|in:Makanan,Minuman,Camilan'
         ]);
 
         // 3. Logika Gambar (Jika ada gambar baru yang diunggah)
@@ -241,10 +259,11 @@ class MenuController extends Controller
 
         // 4. Update ke SQLite
         $menu->update([
-            'nama_menu' => $request->nama_menu,
-            'harga'     => $request->harga,
-            'foto'      => $lokasiFoto,
-            'deskripsi' => $request->deskripsi,
+            'nama_menu'  => $request->nama_menu,
+            'jenis_menu' => $request->jenis_menu,
+            'harga'      => $request->harga,
+            'foto'       => $lokasiFoto,
+            'deskripsi'  => $request->deskripsi,
             // (Catatan: kode_menu tidak diubah)
         ]);
 
