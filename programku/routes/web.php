@@ -18,6 +18,17 @@ Route::delete('/menu/{id}', [MenuController::class, 'destroy'])->name('menu.dest
 Route::get('/menu/{id}/edit', [MenuController::class, 'edit'])->name('menu.edit');
 Route::put('/menu/{id}', [MenuController::class, 'update'])->name('menu.update');
 
+use App\Http\Controllers\TransaksiController;
+
+// Route untuk halaman antarmuka kasir
+Route::get('/kasir', [TransaksiController::class, 'index'])->name('kasir.index');
+
+// Route tampilan utama kasir
+Route::get('/kasir', [TransaksiController::class, 'index'])->name('kasir.index');
+
+// Route untuk fitur AJAX (Tanpa Reload)
+Route::post('/kasir/tambah-keranjang', [TransaksiController::class, 'tambahKeranjang'])->name('kasir.tambah');
+Route::get('/kasir/data-keranjang', [TransaksiController::class, 'dataKeranjang'])->name('kasir.data');
 
 Route::get('/', function () {
     return view('welcome');
