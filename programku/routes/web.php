@@ -29,6 +29,7 @@ Route::get('/kasir', [TransaksiController::class, 'index'])->name('kasir.index')
 // Route untuk fitur AJAX (Tanpa Reload)
 Route::post('/kasir/tambah-keranjang', [TransaksiController::class, 'tambahKeranjang'])->name('kasir.tambah');
 Route::get('/kasir/data-keranjang', [TransaksiController::class, 'dataKeranjang'])->name('kasir.data');
+Route::post('/kasir/hapus-keranjang', [TransaksiController::class, 'hapusKeranjang'])->name('kasir.hapus');
 
 Route::get('/', function () {
     return view('welcome');

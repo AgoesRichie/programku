@@ -64,4 +64,21 @@ class TransaksiController extends Controller
             'total_bayar' => $total_bayar
         ]);
     }
+
+    public function hapusKeranjang(Request $request)
+    {
+        // Ambil data keranjang dari memori (session)
+        $keranjang = session()->get('keranjang', []);
+
+        // Cek apakah menu yang mau dihapus ada di keranjang
+        if (isset($keranjang[$request->menu_id])) {
+            // Hapus menu tersebut dari array keranjang
+            unset($keranjang[$request->menu_id]);
+            
+            // Simpan kembali data keranjang yang sudah diperbarui ke memori
+            session()->put('keranjang', $keranjang);
+        }
+
+        return response()->json(['status' => 'sukses', 'pesan' => 'Menu berhasil dihapus']);
+    }
 }
